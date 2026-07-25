@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#F8F4EB"/>
+    <circle cx="50" cy="42" r="26" fill="#F39B28"/>
+    <text x="50" y="50" font-family="Georgia,serif" font-size="22" font-weight="700" fill="#fff" text-anchor="middle">20%</text>
+    <text x="50" y="82" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#0B4F37" text-anchor="middle" letter-spacing="1">DD</text>
+  </svg>
+</template>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #F8F4EB; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: #0B4F37; text-decoration: none; }
+  a:hover { color: #083826; }
+  input::placeholder { color: #9AA08F; }
+  .dd-field:focus-within { border-color: #0B4F37 !important; background: #FFFFFF !important; box-shadow: 0 0 0 4px rgba(183,190,149,0.3) !important; }
+  .dd-field:hover { border-color: #C9CDBB; }
+  button[type="submit"]:hover svg { transform: translateX(4px); }
+  @keyframes dd-rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes dd-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes dd-pop { 0% { opacity: 0; transform: scale(0.6); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes dd-scalein { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @keyframes dd-float { 0%,100% { transform: translateY(0) rotate(var(--r,0deg)); } 50% { transform: translateY(-14px) rotate(var(--r,0deg)); } }
+  @keyframes dd-leaf { 0% { transform: translate(0,0) rotate(0deg); } 33% { transform: translate(14px,-22px) rotate(18deg); } 66% { transform: translate(-10px,-10px) rotate(-12deg); } 100% { transform: translate(0,0) rotate(0deg); } }
+  @keyframes dd-breathe { 0%,100% { box-shadow: 0 0 0 0 rgba(243,155,40,0.32), 0 30px 60px -20px rgba(243,155,40,0.55); } 50% { box-shadow: 0 0 0 22px rgba(243,155,40,0), 0 34px 70px -18px rgba(243,155,40,0.65); } }
+  @keyframes dd-drift { from { transform: translateX(0); } to { transform: translateX(-40px); } }
+  @keyframes dd-twinkle { 0%,100% { opacity: 0.2; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1.1); } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</helmet>
+
+<div ref="{{ setRoot }}" style="position: relative; height: 100vh; width: 100%; overflow: hidden; background: #F8F4EB; font-family: 'Inter', system-ui, sans-serif;">
+
+  <!-- ===== BACKGROUND LAYERS ===== -->
+  <div style="position: absolute; inset: 0; pointer-events: none; z-index: 0;">
+    <div style="position: absolute; inset: 0; background:
+      radial-gradient(1100px 700px at 82% 18%, rgba(183,190,149,0.28), transparent 60%),
+      radial-gradient(900px 620px at 12% 78%, rgba(252,251,248,0.9), transparent 55%),
+      radial-gradient(700px 500px at 60% 55%, rgba(247,199,106,0.10), transparent 60%),
+      linear-gradient(160deg, #FCFBF8 0%, #F8F4EB 45%, #F3EFE2 100%);"></div>
+
+    <!-- flowing contour lines -->
+    <div class="dd-par" data-depth="8" style="position: absolute; top: -6%; right: -8%; width: 70%; height: 120%; opacity: 0.5;">
+      <svg viewBox="0 0 800 900" width="100%" height="100%" fill="none" preserveAspectRatio="xMidYMid slice" style="animation: dd-drift 40s linear infinite alternate;">
+        <g stroke="#B7BE95" stroke-width="1.1" opacity="0.55">
+          <path d="M-40 120 C 200 60, 420 220, 640 150 S 900 120, 1000 220" />
+          <path d="M-40 200 C 200 150, 420 300, 640 230 S 900 210, 1000 300" />
+          <path d="M-40 300 C 220 240, 430 400, 660 330 S 900 300, 1000 400" />
+          <path d="M-40 400 C 220 350, 430 500, 660 430 S 900 410, 1000 500" />
+          <path d="M-40 520 C 220 460, 430 610, 660 540 S 900 520, 1000 610" />
+          <path d="M-40 640 C 220 590, 430 730, 660 660 S 900 640, 1000 730" />
+        </g>
+      </svg>
+    </div>
+
+    <!-- soft blurred organic blobs -->
+    <div class="dd-par" data-depth="16" style="position: absolute; top: 8%; left: 4%; width: 380px; height: 380px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, rgba(183,190,149,0.35), transparent 62%); filter: blur(30px); animation: dd-float 16s ease-in-out infinite;"></div>
+    <div class="dd-par" data-depth="24" style="position: absolute; bottom: -6%; right: 22%; width: 460px; height: 460px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, rgba(247,199,106,0.18), transparent 60%); filter: blur(40px); animation: dd-float 22s ease-in-out infinite; --r: 0deg;"></div>
+
+    <!-- botanical watermark -->
+    <svg viewBox="0 0 200 300" width="360" height="540" style="position: absolute; bottom: -40px; left: -30px; opacity: 0.05;" fill="none" stroke="#0B4F37" stroke-width="2">
+      <path d="M100 290 C 100 200, 100 140, 100 60" />
+      <path d="M100 220 C 60 200, 40 160, 44 120 C 84 128, 100 170, 100 210" />
+      <path d="M100 180 C 140 160, 160 120, 156 82 C 116 92, 100 132, 100 172" />
+      <path d="M100 130 C 66 116, 52 84, 56 52 C 90 62, 100 96, 100 126" />
+    </svg>
+
+    <!-- floating leaves -->
+    <div class="dd-par" data-depth="30" style="position: absolute; top: 12%; left: 46%; animation: dd-leaf 18s ease-in-out infinite;"><svg width="34" height="34" viewBox="0 0 32 32" fill="#5C7A4E"><path d="M28 4C14 5 5 13 4 27c0 1 2 1 2 0C8 15 16 8 28 6c1 0 1-2 0-2Z" opacity="0.85"/><path d="M6 26C10 18 17 11 27 6" stroke="#3F5A34" stroke-width="1" fill="none"/></svg></div>
+    <div class="dd-par" data-depth="40" style="position: absolute; top: 70%; left: 58%; animation: dd-leaf 22s ease-in-out infinite 2s;"><svg width="26" height="26" viewBox="0 0 32 32" fill="#7A8B5A"><path d="M28 4C14 5 5 13 4 27c0 1 2 1 2 0C8 15 16 8 28 6c1 0 1-2 0-2Z" opacity="0.8"/></svg></div>
+    <div class="dd-par" data-depth="22" style="position: absolute; top: 40%; left: 33%; animation: dd-leaf 26s ease-in-out infinite 1s;"><svg width="20" height="20" viewBox="0 0 32 32" fill="#93A06E"><path d="M28 4C14 5 5 13 4 27c0 1 2 1 2 0C8 15 16 8 28 6c1 0 1-2 0-2Z" opacity="0.7"/></svg></div>
+
+    <!-- noise -->
+    <div style="position: absolute; inset: 0; opacity: 0.035; mix-blend-mode: multiply; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);"></div>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div id="dd-wrap" style="position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; padding: 24px 56px; height: 100vh; display: flex; flex-direction: column; justify-content: center;">
+    <div id="dd-grid" style="display: grid; grid-template-columns: 1.02fr 1.15fr; gap: 40px; align-items: center; position: relative;">
+
+      <!-- LEFT COLUMN -->
+      <div id="dd-left" style="max-width: 560px;">
+
+        <!-- logo -->
+        <img src="./detox-logo.png" alt="Detox Daily" style="height: 62px; width: auto; display: block; opacity: 0; animation: dd-fade 0.7s ease forwards 0.05s;">
+
+
+        <!-- badge -->
+        <div style="margin-top: 20px; opacity: 0; animation: dd-rise 0.7s cubic-bezier(.2,.7,.2,1) forwards 0.2s;">
+          <span style="display: inline-flex; align-items: center; gap: 8px; background: #B7BE95; color: #123323; font-size: 12px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; padding: 9px 18px; border-radius: 999px; box-shadow: 0 6px 16px -8px rgba(11,79,55,0.4);">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #0B4F37; display: inline-block;"></span>
+            Launching Soon in Lahore
+          </span>
+        </div>
+
+        <!-- headline -->
+        <h1 style="margin: 18px 0 0; font-family: 'Playfair Display', serif; font-weight: 700; line-height: 1.02; letter-spacing: -1px; font-size: clamp(40px, 4.6vw, 70px); color: #123323; position: relative;">
+          <span style="display: block; opacity: 0; animation: dd-rise 0.8s cubic-bezier(.2,.7,.2,1) forwards 0.3s;">Healthy food</span>
+          <span style="display: block; font-style: italic; font-weight: 500; color: #7C8A54; opacity: 0; animation: dd-rise 0.8s cubic-bezier(.2,.7,.2,1) forwards 0.42s;">worth waiting for.</span>
+          <span style="position: absolute; top: -6px; right: 8%; opacity: 0; animation: dd-twinkle 3.4s ease-in-out infinite 1.4s, dd-fade 1s ease forwards 0.9s;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#F39B28"><path d="M12 2l1.4 7.2L21 12l-7.6 2.8L12 22l-1.4-7.2L3 12l7.6-2.8z"/></svg>
+          </span>
+        </h1>
+
+        <!-- divider -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 14px; opacity: 0; animation: dd-fade 0.8s ease forwards 0.55s;">
+          <span style="height: 2px; width: 64px; background: #F39B28; border-radius: 2px;"></span>
+          <svg width="18" height="18" viewBox="0 0 32 32" fill="#7C8A54"><path d="M28 6C15 7 7 14 6 26c6-1 12-4 16-10" /></svg>
+        </div>
+
+        <!-- description -->
+        <p style="margin: 12px 0 0; max-width: 440px; font-size: 16.5px; line-height: 1.55; color: #5F6558; opacity: 0; animation: dd-rise 0.8s ease forwards 0.6s;">
+          Fresh protein bowls, vibrant salads and detox drinks — prepared daily and delivered across <strong style="color: #123323; font-weight: 600;">Lahore.</strong>
+        </p>
+
+        <!-- form card -->
+        <div id="dd-card" style="margin-top: 20px; background: rgba(252,251,248,0.86); backdrop-filter: blur(8px); border: 1px solid rgba(183,190,149,0.45); border-radius: 28px; padding: 24px 30px 22px; box-shadow: 0 30px 70px -34px rgba(11,79,55,0.35), 0 2px 8px rgba(11,79,55,0.04); max-width: 470px; opacity: 0; animation: dd-scalein 0.8s cubic-bezier(.2,.7,.2,1) forwards 0.7s; transition: transform 0.4s cubic-bezier(.2,.7,.2,1), box-shadow 0.4s;">
+
+          <sc-if value="{{ submitted }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align: center; padding: 18px 6px 12px;">
+              <div style="width: 62px; height: 62px; border-radius: 50%; background: #E9EEDD; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0B4F37" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </div>
+              <h3 style="margin: 0 0 8px; font-family: 'Playfair Display', serif; font-size: 26px; color: #123323;">You're on the list.</h3>
+              <p style="margin: 0; color: #5F6558; font-size: 15px; line-height: 1.55;">Your <strong style="color:#0B4F37;">20% founding member offer</strong> is reserved. We'll email you the moment we launch in Lahore.</p>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ notSubmitted }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="text-align: center;">
+                <svg width="26" height="26" viewBox="0 0 32 32" fill="#2E7D46" style="display: inline-block;"><path d="M28 6C15 7 7 14 6 26c6-1 12-4 16-10" opacity="0.95"/><path d="M15 24C18 18 22 13 28 9" stroke="#0B4F37" stroke-width="1.2" fill="none"/></svg>
+                <h2 style="margin: 6px 0 5px; font-family: 'Playfair Display', serif; font-weight: 600; font-size: 25px; color: #123323;">Unlock Your Launch Offer</h2>
+                <p style="margin: 0 auto; max-width: 320px; font-size: 14.5px; line-height: 1.55; color: #5F6558;">Reserve your spot before launch and activate your exclusive rewards.</p>
+              </div>
+
+              <form onSubmit="{{ onSubmit }}" style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+                <label class="dd-field" style="display: flex; align-items: center; gap: 11px; background: #FBFAF5; border: 1.5px solid #E7E4D6; border-radius: 14px; padding: 0 16px; height: 48px; transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C9280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+                  <input value="{{ fullName }}" onInput="{{ onName }}" type="text" required aria-label="Full name" placeholder="Full Name" style="flex: 1; border: none; outline: none; background: transparent; font-family: inherit; font-size: 15px; color: #123323;">
+                </label>
+                <label class="dd-field" style="display: flex; align-items: center; gap: 11px; background: #FBFAF5; border: 1.5px solid #E7E4D6; border-radius: 14px; padding: 0 16px; height: 48px; transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C9280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
+                  <input value="{{ email }}" onInput="{{ onEmail }}" type="email" required aria-label="Email address" placeholder="Email Address" style="flex: 1; border: none; outline: none; background: transparent; font-family: inherit; font-size: 15px; color: #123323;">
+                </label>
+                <label class="dd-field" style="display: flex; align-items: center; gap: 11px; background: #FBFAF5; border: 1.5px solid #E7E4D6; border-radius: 14px; padding: 0 16px; height: 48px; transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C9280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 005 5L14 13l5 2v3a2 2 0 01-2 2A15 15 0 013 6a2 2 0 012-2z"/></svg>
+                  <input value="{{ phone }}" onInput="{{ onPhone }}" type="tel" aria-label="Phone number" placeholder="Phone Number" style="flex: 1; border: none; outline: none; background: transparent; font-family: inherit; font-size: 15px; color: #123323;">
+                </label>
+
+                <button type="submit" ref="{{ setBtn }}" onMouseMove="{{ onBtnMove }}" style="position: relative; overflow: hidden; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; height: 52px; border: none; border-radius: 15px; background: linear-gradient(180deg, #0F5E42 0%, #0B4F37 100%); color: #FCFBF8; font-family: inherit; font-weight: 600; font-size: 15.5px; letter-spacing: 0.2px; cursor: pointer; box-shadow: 0 14px 28px -12px rgba(11,79,55,0.6); transition: transform 0.28s cubic-bezier(.2,.7,.2,1), box-shadow 0.28s, filter 0.28s;"
+                  style-hover="transform: translateY(-3px); filter: brightness(1.12); box-shadow: 0 22px 40px -14px rgba(11,79,55,0.7), 0 0 0 4px rgba(183,190,149,0.35);">
+                  <span style="position: relative; z-index: 2;">Reserve My Spot &amp; Unlock 20% OFF</span>
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="position: relative; z-index: 2; transition: transform 0.28s;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </button>
+              </form>
+
+              <p style="margin: 16px 0 0; text-align: center; font-size: 14px; font-weight: 600; color: #E88A1A;">
+                <span style="color:#F39B28;">✦</span> FREE delivery for your first month
+              </p>
+              <p style="margin: 6px 0 0; text-align: center; font-size: 12.5px; color: #97998C;">No payment required today.</p>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN : collage -->
+      <div id="dd-right" style="position: relative; height: 660px;">
+
+        <!-- main bowl -->
+        <div class="dd-par" data-depth="14" style="position: absolute; top: 40px; left: 2%; width: 62%; height: 560px; transform: rotate(-1.5deg); animation: dd-float 9s ease-in-out infinite; --r: -1.5deg;">
+          <div style="width: 100%; height: 100%; border-radius: 26px; overflow: hidden; box-shadow: 0 40px 90px -34px rgba(11,79,55,0.5); border: 6px solid #FCFBF8;">
+            <image-slot id="dd-bowl" shape="rect" placeholder="Protein bowl — chicken, avocado, quinoa, greens"></image-slot>
+          </div>
+        </div>
+
+        <!-- juice bottle top-right -->
+        <div class="dd-par" data-depth="26" style="position: absolute; top: -8px; right: 0; width: 40%; height: 340px; transform: rotate(2deg); animation: dd-float 11s ease-in-out infinite 1s; --r: 2deg;">
+          <div style="width: 100%; height: 100%; border-radius: 22px; overflow: hidden; box-shadow: 0 34px 70px -30px rgba(11,79,55,0.5); border: 6px solid #FCFBF8;">
+            <image-slot id="dd-bottle" shape="rect" placeholder="Detox Daily green juice bottle"></image-slot>
+          </div>
+        </div>
+
+        <!-- avocado bottom-right -->
+        <div class="dd-par" data-depth="34" style="position: absolute; bottom: 12px; right: 4%; width: 44%; height: 260px; transform: rotate(-2.5deg); animation: dd-float 12s ease-in-out infinite 0.5s; --r: -2.5deg;">
+          <div style="width: 100%; height: 100%; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 64px -28px rgba(11,79,55,0.45); border: 6px solid #FCFBF8;">
+            <image-slot id="dd-avocado" shape="rect" placeholder="Avocado, lemon, cucumber, herbs"></image-slot>
+          </div>
+        </div>
+      </div>
+
+      <!-- OFFER CIRCLE -->
+      <div id="dd-offer" style="position: absolute; left: 50%; top: 50%; transform: translate(-58%, -46%); z-index: 5;">
+       <div style="opacity: 0; animation: dd-pop 0.9s cubic-bezier(.2,.9,.3,1.2) forwards 0.85s;">
+        <div style="width: 246px; height: 246px; border-radius: 50%; background: radial-gradient(circle at 42% 32%, #F9B451 0%, #F39B28 46%, #E5851A 100%); border: 3px solid #F7C76A; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #FFF; animation: dd-breathe 4.2s ease-in-out infinite; position: relative;">
+          <div style="position: absolute; inset: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.35);"></div>
+          <div style="position: absolute; top: 40px; opacity: 0.9;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#FFF"><path d="M12 2l1.4 7.2L21 12l-7.6 2.8L12 22l-1.4-7.2L3 12l7.6-2.8z"/></svg></div>
+          <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.8px; margin-top: 30px; text-transform: uppercase; opacity: 0.95;">Founding Member Offer</div>
+          <div style="display: flex; align-items: flex-start; line-height: 1; margin-top: 2px;">
+            <span style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 72px;">20</span>
+            <span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 26px; margin-top: 6px;">%</span>
+            <span style="font-weight: 700; font-size: 22px; align-self: flex-end; margin: 0 0 12px 2px;">OFF</span>
+          </div>
+          <div style="width: 120px; height: 1px; background: rgba(255,255,255,0.5); margin: 6px 0;"></div>
+          <div style="font-weight: 700; font-size: 16px; letter-spacing: 0.5px;">FREE DELIVERY</div>
+          <div style="font-size: 10px; font-weight: 500; letter-spacing: 1.4px; opacity: 0.92; margin-top: 2px;">FOR YOUR FIRST MONTH</div>
+        </div>
+       </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { fullName: "", email: "", phone: "", submitted: false };
+
+  componentDidMount() {
+    this.applyLayout();
+    setTimeout(() => this.applyLayout(), 350);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.applyLayout());
+    this._onResize = () => this.applyLayout();
+    window.addEventListener("resize", this._onResize);
+    this._onMove = (e) => {
+      if (!this.root) return;
+      const w = window.innerWidth, h = window.innerHeight;
+      const dx = (e.clientX - w / 2) / (w / 2);
+      const dy = (e.clientY - h / 2) / (h / 2);
+      this.root.querySelectorAll(".dd-par").forEach((el) => {
+        const d = parseFloat(el.getAttribute("data-depth") || "0");
+        el.style.setProperty("transform", `translate(${(-dx * d).toFixed(1)}px, ${(-dy * d).toFixed(1)}px)`, "");
+        el.style.willChange = "transform";
+      });
+    };
+    window.addEventListener("mousemove", this._onMove);
+  }
+  componentWillUnmount() {
+    window.removeEventListener("resize", this._onResize);
+    window.removeEventListener("mousemove", this._onMove);
+  }
+
+  applyLayout() {
+    const w = window.innerWidth;
+    const grid = document.getElementById("dd-grid");
+    const wrap = document.getElementById("dd-wrap");
+    const left = document.getElementById("dd-left");
+    const right = document.getElementById("dd-right");
+    const offer = document.getElementById("dd-offer");
+    if (!grid) return;
+    const mobile = w < 900;
+    const tablet = w < 1180 && w >= 900;
+    if (mobile) {
+      grid.style.gridTemplateColumns = "1fr";
+      grid.style.gap = "20px";
+      grid.style.textAlign = "center";
+      wrap.style.padding = "28px 20px 56px";
+      left.style.maxWidth = "520px";
+      left.style.margin = "0 auto";
+      right.style.height = "480px";
+      right.style.order = "2";
+      offer.style.position = "static";
+      offer.style.transform = "none";
+      offer.style.margin = "6px auto 8px";
+      offer.style.display = "flex";
+      offer.style.justifyContent = "center";
+    } else {
+      grid.style.gridTemplateColumns = tablet ? "1fr 1fr" : "1.02fr 1.15fr";
+      grid.style.gap = "40px";
+      grid.style.textAlign = "left";
+      wrap.style.padding = "40px 56px 64px";
+      left.style.maxWidth = "560px";
+      left.style.margin = "0";
+      right.style.height = Math.min(620, Math.round(window.innerHeight * 0.72)) + "px";
+      right.style.order = "0";
+      offer.style.position = "absolute";
+      offer.style.transform = "translate(-58%, -46%)";
+      offer.style.margin = "0";
+      offer.style.display = "block";
+    }
+    this.fitToScreen(grid, wrap, mobile);
+  }
+
+  fitToScreen(grid, wrap, mobile) {
+    grid.style.transform = "none";
+    grid.style.transformOrigin = "center center";
+    const padV = mobile ? 56 : 48;
+    const avail = window.innerHeight - padV;
+    const natural = grid.offsetHeight;
+    if (natural > avail) {
+      const scale = Math.max(0.5, avail / natural);
+      grid.style.transform = `scale(${scale})`;
+    }
+  }
+
+  onBtnMove(e) {
+    // subtle arrow slide handled purely via CSS hover on button
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    if (!this.state.fullName || !this.state.email) return;
+    this.setState({ submitted: true });
+  }
+
+  renderVals() {
+    return {
+      fullName: this.state.fullName,
+      email: this.state.email,
+      phone: this.state.phone,
+      submitted: this.state.submitted,
+      notSubmitted: !this.state.submitted,
+      onName: (e) => this.setState({ fullName: e.target.value }),
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      onPhone: (e) => this.setState({ phone: e.target.value }),
+      onSubmit: (e) => this.onSubmit(e),
+      onBtnMove: (e) => this.onBtnMove(e),
+      setRoot: (el) => { this.root = el; },
+      setBtn: (el) => { this.btn = el; },
+    };
+  }
+}
+</script>
+</body>
+</html>
