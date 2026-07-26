@@ -17,7 +17,8 @@ export function Collage() {
           style={{ boxShadow: "0 40px 90px -34px rgba(11,79,55,0.5)" }}
         >
           <CollagePhoto
-            alt="Protein bowl with chicken, avocado, quinoa and greens"
+            src="/Bowl.png"
+            alt="Protein bowl with avocado, quinoa, chickpeas and greens"
             placeholderLabel="Protein bowl — chicken, avocado, quinoa, greens"
             placeholderIcon={Salad}
             priority
@@ -37,7 +38,8 @@ export function Collage() {
           style={{ boxShadow: "0 34px 70px -30px rgba(11,79,55,0.5)" }}
         >
           <CollagePhoto
-            alt="Detox Daily green juice bottle"
+            src="/juice.png"
+            alt="Detox Daily green, orange and pink juice bottles"
             placeholderLabel="Detox Daily green juice bottle"
             placeholderIcon={CupSoda}
           />
@@ -56,7 +58,8 @@ export function Collage() {
           style={{ boxShadow: "0 30px 64px -28px rgba(11,79,55,0.45)" }}
         >
           <CollagePhoto
-            alt="Avocado, lemon, cucumber and herbs on a wood surface"
+            src="/Ingredients.png"
+            alt="Detox Daily healthy ingredients spread — avocado, spinach, nuts and seeds"
             placeholderLabel="Avocado, lemon, cucumber, herbs"
             placeholderIcon={Sprout}
           />
