@@ -7,7 +7,7 @@ export function Collage() {
     <div className="relative order-2 h-[480px] tablet:order-none tablet:h-[min(620px,72vh)]">
       {/* main bowl */}
       <ParallaxLayer
-        depth={14}
+        depth={0}
         float={{ amplitude: 14, duration: 9 }}
         className="absolute top-[40px] left-[2%] h-[560px] w-[62%]"
         style={{ rotate: -1.5 }}
@@ -28,7 +28,7 @@ export function Collage() {
 
       {/* juice bottle */}
       <ParallaxLayer
-        depth={26}
+        depth={0}
         float={{ amplitude: 14, duration: 11, delay: 1 }}
         className="absolute top-[-8px] right-0 h-[340px] w-[40%]"
         style={{ rotate: 2 }}
@@ -48,7 +48,7 @@ export function Collage() {
 
       {/* avocado */}
       <ParallaxLayer
-        depth={34}
+        depth={0}
         float={{ amplitude: 14, duration: 12, delay: 0.5 }}
         className="absolute bottom-3 right-[4%] h-[260px] w-[44%]"
         style={{ rotate: -2.5 }}
