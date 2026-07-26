@@ -36,9 +36,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# local waitlist lead capture (see app/api/waitlist/route.ts TODO)
-/data/
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
