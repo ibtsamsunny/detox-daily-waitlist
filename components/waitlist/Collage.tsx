@@ -13,7 +13,7 @@ export function Collage() {
         style={{ rotate: -1.5 }}
       >
         <div
-          className="h-full w-full overflow-hidden rounded-[26px] border-[6px] border-warm-white"
+          className="relative h-full w-full overflow-hidden rounded-[26px] border-[6px] border-warm-white"
           style={{ boxShadow: "0 40px 90px -34px rgba(11,79,55,0.5)" }}
         >
           <CollagePhoto
@@ -34,7 +34,7 @@ export function Collage() {
         style={{ rotate: 2 }}
       >
         <div
-          className="h-full w-full overflow-hidden rounded-[22px] border-[6px] border-warm-white"
+          className="relative h-full w-full overflow-hidden rounded-[22px] border-[6px] border-warm-white"
           style={{ boxShadow: "0 34px 70px -30px rgba(11,79,55,0.5)" }}
         >
           <CollagePhoto
@@ -54,7 +54,7 @@ export function Collage() {
         style={{ rotate: -2.5 }}
       >
         <div
-          className="h-full w-full overflow-hidden rounded-[22px] border-[6px] border-warm-white"
+          className="relative h-full w-full overflow-hidden rounded-[22px] border-[6px] border-warm-white"
           style={{ boxShadow: "0 30px 64px -28px rgba(11,79,55,0.45)" }}
         >
           <CollagePhoto
