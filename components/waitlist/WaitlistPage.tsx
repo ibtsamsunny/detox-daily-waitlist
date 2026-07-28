@@ -17,7 +17,7 @@ export function WaitlistPage() {
 
   return (
     <ParallaxProvider>
-      <div className="relative min-h-dvh w-full bg-cream font-body tablet:h-dvh tablet:overflow-hidden">
+      <div className="relative min-h-dvh w-full overflow-x-hidden bg-cream font-body tablet:h-dvh tablet:overflow-hidden">
         <Background />
 
         <div

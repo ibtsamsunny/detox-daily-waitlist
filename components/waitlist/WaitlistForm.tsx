@@ -132,7 +132,7 @@ export function WaitlistForm() {
               <motion.button
                 type="submit"
                 disabled={status === "submitting"}
-                className="group relative mt-1.5 flex h-[52px] items-center justify-center gap-2.5 overflow-hidden rounded-[15px] text-[15.5px] font-semibold text-warm-white disabled:opacity-70"
+                className="group relative mt-1.5 flex min-h-[52px] items-center justify-center gap-2.5 overflow-hidden rounded-[15px] px-5 py-3 text-center text-[15.5px] font-semibold text-warm-white disabled:opacity-70"
                 style={{
                   background: "linear-gradient(180deg, #0F5E42 0%, #0B4F37 100%)",
                   letterSpacing: "0.2px",
