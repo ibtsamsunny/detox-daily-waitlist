@@ -52,7 +52,7 @@ export function DiscountCodeEmail({ fullName, discountCode }: DiscountCodeEmailP
 
           <Text style={styles.text}>
             Save it — you&apos;ll enter it at checkout for 20% off plus free delivery on your
-            first month, the moment we launch in Lahore. This code is unique to you and can be
+            first week, the moment we launch in Lahore. This code is unique to you and can be
             used once.
           </Text>
 

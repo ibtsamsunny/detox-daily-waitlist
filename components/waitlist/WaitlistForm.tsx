@@ -158,7 +158,7 @@ export function WaitlistForm() {
             {error && <p className="mt-3 text-center text-[13px] text-red-600">{error}</p>}
 
             <p className="mt-4 text-center text-sm font-semibold text-offer-text">
-              <span className="text-offer-mid">✦</span> FREE delivery for your first month
+              <span className="text-offer-mid">✦</span> FREE delivery for your first week
             </p>
             <p className="mt-1.5 text-center text-[12.5px] text-muted">No payment required today.</p>
           </motion.div>

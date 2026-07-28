@@ -33,7 +33,7 @@ function OfferBadge() {
         FREE DELIVERY
       </div>
       <div className="mt-0.5 text-[10px] font-medium opacity-90" style={{ letterSpacing: "1.4px" }}>
-        FOR YOUR FIRST MONTH
+        FOR YOUR FIRST WEEK
       </div>
     </div>
   );
