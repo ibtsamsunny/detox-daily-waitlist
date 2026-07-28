@@ -41,10 +41,8 @@ export function WaitlistForm() {
 
   return (
     <motion.div
-      className="mt-5 max-w-[470px] rounded-[28px] border border-[rgba(183,190,149,0.45)] p-[24px_30px_22px] transition-[transform,box-shadow] duration-[400ms]"
+      className="dd-form-card mt-5 max-w-[470px] rounded-[28px] border border-[rgba(183,190,149,0.45)] p-[24px_30px_22px] transition-[transform,box-shadow] duration-[400ms]"
       style={{
-        background: "rgba(252,251,248,0.86)",
-        backdropFilter: "blur(8px)",
         boxShadow: "0 30px 70px -34px rgba(11,79,55,0.35), 0 2px 8px rgba(11,79,55,0.04)",
       }}
       initial={{ opacity: 0, scale: 0.95 }}

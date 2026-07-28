@@ -45,6 +45,21 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.dd-form-card {
+  background: rgba(252, 251, 248, 0.86);
+  backdrop-filter: blur(8px);
+}
+
+/* backdrop-filter forces a repaint of whatever's behind the card on every
+   scroll frame, which is expensive on mobile GPUs — drop it below the
+   tablet breakpoint and raise the opacity to compensate for the lost blur. */
+@media (max-width: 899px) {
+  .dd-form-card {
+    background: rgba(252, 251, 248, 0.97);
+    backdrop-filter: none;
+  }
+}
+
 .dd-field:focus-within {
   border-color: var(--color-forest) !important;
   background: #ffffff !important;

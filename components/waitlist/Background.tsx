@@ -37,11 +37,13 @@ export function Background() {
         </svg>
       </ParallaxLayer>
 
-      {/* soft blurred organic blobs */}
+      {/* soft blurred organic blobs — the blur filter is expensive to recomposite on
+          mobile GPUs during scroll, so it's tablet+ only; the gradient's own falloff
+          reads soft enough on mobile without it. */}
       <ParallaxLayer
         depth={16}
         float={{ amplitude: 14, duration: 16 }}
-        className="absolute top-[8%] left-[4%] w-[380px] h-[380px] rounded-full blur-[30px]"
+        className="absolute top-[8%] left-[4%] w-[380px] h-[380px] rounded-full tablet:blur-[30px]"
         style={{
           background: "radial-gradient(circle at 40% 35%, rgba(183,190,149,0.35), transparent 62%)",
         }}
@@ -49,7 +51,7 @@ export function Background() {
       <ParallaxLayer
         depth={24}
         float={{ amplitude: 14, duration: 22 }}
-        className="absolute -bottom-[6%] right-[22%] w-[460px] h-[460px] rounded-full blur-[40px]"
+        className="absolute -bottom-[6%] right-[22%] w-[460px] h-[460px] rounded-full tablet:blur-[40px]"
         style={{
           background: "radial-gradient(circle at 50% 50%, rgba(247,199,106,0.18), transparent 60%)",
         }}
@@ -82,9 +84,10 @@ export function Background() {
         <FloatingLeafIcon size={20} color="#93A06E" />
       </ParallaxLayer>
 
-      {/* noise */}
+      {/* noise — mix-blend-mode forces a repaint of whatever's behind it, which is
+          expensive during scroll; the effect is subtle enough to skip on mobile. */}
       <div
-        className="absolute inset-0 opacity-[0.035] mix-blend-multiply"
+        className="absolute inset-0 hidden opacity-[0.035] mix-blend-multiply tablet:block"
         style={{ backgroundImage: `url("${NOISE_DATA_URI}")` }}
       />
     </div>
