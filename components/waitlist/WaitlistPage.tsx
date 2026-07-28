@@ -10,7 +10,7 @@ import { AccentDivider } from "./AccentDivider";
 import { Description } from "./Description";
 import { WaitlistForm } from "./WaitlistForm";
 import { Collage } from "./Collage";
-import { OfferCircle } from "./OfferCircle";
+import { OfferCircleMobile, OfferCircleDesktop } from "./OfferCircle";
 
 export function WaitlistPage() {
   const { containerRef, contentRef, scale } = useFitToScreen<HTMLDivElement, HTMLDivElement>();
@@ -36,6 +36,8 @@ export function WaitlistPage() {
               <Headline />
               <AccentDivider />
               <Description />
+              {/* Visible as soon as the page loads on mobile, instead of after the whole form + collage. */}
+              <OfferCircleMobile />
               <div className="flex justify-center tablet:block">
                 <WaitlistForm />
               </div>
@@ -45,7 +47,7 @@ export function WaitlistPage() {
             <Collage />
 
             {/* OFFER CIRCLE (overlaps both columns on tablet/desktop) */}
-            <OfferCircle />
+            <OfferCircleDesktop />
           </div>
         </div>
       </div>

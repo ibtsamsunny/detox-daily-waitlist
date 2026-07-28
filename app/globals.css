@@ -77,12 +77,28 @@ body {
   }
 }
 
-.animate-breathe {
+.offer-breathe {
   animation: dd-breathe 4.2s ease-in-out infinite;
 }
 
 .animate-twinkle {
   animation: dd-twinkle 3.4s ease-in-out infinite 1.4s;
+}
+
+/* Below the tablet breakpoint, the page scrolls (see useFitToScreen), so
+   continuous decorative animations are cut to keep scroll performance
+   smooth — box-shadow animation in particular forces a repaint every
+   frame, which competes with scroll compositing on phones. */
+@media (max-width: 899px) {
+  .offer-breathe {
+    animation: none;
+    box-shadow: 0 30px 60px -20px rgba(243, 155, 40, 0.55);
+  }
+  .animate-twinkle {
+    animation: none;
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

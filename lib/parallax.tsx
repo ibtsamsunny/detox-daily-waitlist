@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   motion,
   useMotionValue,
@@ -45,6 +45,28 @@ function useParallaxCursor() {
   return ctx;
 }
 
+/**
+ * Below the tablet breakpoint the page scrolls (see useFitToScreen) instead of
+ * being a static single screen, so continuous decorative animations are
+ * skipped there — they're pure flourish (cursor parallax is moot without a
+ * mouse anyway), and running 9+ of them concurrently competes with scroll
+ * compositing on phones.
+ */
+function useIsMobile(breakpoint = 900) {
+  // Starts false to match the server-rendered markup (no `window` there);
+  // the effect corrects it right after mount. Reading `window.innerWidth`
+  // in the initializer would make the client's first render diverge from
+  // SSR output and trigger a hydration mismatch.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 /** A motion value that loops through keyframes forever, e.g. a float or drift animation. */
 function useLoop(
   keyframes: number[],
@@ -53,15 +75,18 @@ function useLoop(
     delay = 0,
     repeatType = "loop",
     times,
+    disabled,
   }: {
     duration: number;
     delay?: number;
     repeatType?: "loop" | "reverse";
     times?: number[];
+    disabled?: boolean;
   }
 ) {
   const mv = useMotionValue(keyframes[0]);
   useEffect(() => {
+    if (disabled) return;
     const controls = animate(mv, keyframes, {
       duration,
       delay,
@@ -72,7 +97,7 @@ function useLoop(
     });
     return () => controls.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mv, duration, delay, repeatType]);
+  }, [mv, duration, delay, repeatType, disabled]);
   return mv;
 }
 
@@ -107,29 +132,35 @@ export function ParallaxLayer({
   leaf,
 }: ParallaxLayerProps) {
   const { mx, my } = useParallaxCursor();
+  const isMobile = useIsMobile();
 
   const floatY = useLoop(float ? [0, -float.amplitude, 0] : ZERO, {
     duration: float?.duration ?? 1,
     delay: float?.delay,
+    disabled: isMobile,
   });
   const driftX = useLoop(drift ? [0, -drift.amplitude] : ZERO, {
     duration: drift?.duration ?? 1,
     repeatType: "reverse",
+    disabled: isMobile,
   });
   const leafX = useLoop(leaf ? [0, 14, -10, 0] : ZERO, {
     duration: leaf?.duration ?? 1,
     delay: leaf?.delay,
     times: [0, 0.33, 0.66, 1],
+    disabled: isMobile,
   });
   const leafY = useLoop(leaf ? [0, -22, -10, 0] : ZERO, {
     duration: leaf?.duration ?? 1,
     delay: leaf?.delay,
     times: [0, 0.33, 0.66, 1],
+    disabled: isMobile,
   });
   const leafRotate = useLoop(leaf ? [0, 18, -12, 0] : ZERO, {
     duration: leaf?.duration ?? 1,
     delay: leaf?.delay,
     times: [0, 0.33, 0.66, 1],
+    disabled: isMobile,
   });
 
   const px = useTransform(mx, (v) => -v * depth);
@@ -148,7 +179,7 @@ export function ParallaxLayer({
         x,
         y,
         rotate: leaf ? leafRotate : style?.rotate,
-        willChange: "transform",
+        willChange: isMobile ? undefined : "transform",
       }}
     >
       {children}
