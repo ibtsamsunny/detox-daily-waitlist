@@ -17,12 +17,12 @@ export function WaitlistPage() {
 
   return (
     <ParallaxProvider>
-      <div className="relative min-h-dvh w-full overflow-x-hidden bg-cream font-body tablet:h-dvh tablet:overflow-hidden">
+      <div className="relative w-full overflow-x-hidden bg-cream font-body tablet:h-dvh tablet:overflow-hidden">
         <Background />
 
         <div
           ref={containerRef}
-          className="relative z-[2] mx-auto flex min-h-dvh max-w-[1400px] flex-col justify-center px-5 py-10 tablet:h-dvh tablet:p-[40px_56px_64px]"
+          className="relative z-[2] mx-auto flex max-w-[1400px] flex-col justify-center px-5 py-10 tablet:h-dvh tablet:p-[40px_56px_64px]"
         >
           <div
             ref={contentRef}
