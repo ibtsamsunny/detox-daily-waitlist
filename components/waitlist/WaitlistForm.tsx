@@ -50,7 +50,12 @@ export function WaitlistForm() {
       transition={{ duration: 0.8, delay: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
       whileHover={{ y: -2 }}
     >
-      <AnimatePresence mode="wait" initial={false}>
+      {/* mode="sync" (the default) rather than "wait": the success message must
+          never be gated behind the outgoing form's exit animation finishing —
+          if that animation ever fails to fire (a backgrounded tab, reduced-motion
+          edge cases, etc.), "wait" would leave the confirmation stuck unseen
+          forever even though the signup succeeded. */}
+      <AnimatePresence initial={false}>
         {submitted ? (
           <motion.div
             key="success"
