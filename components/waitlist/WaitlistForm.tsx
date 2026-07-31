@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { User, Mail, Phone, ArrowRight, Check } from "lucide-react";
 import { LeafBadgeIcon } from "./icons";
 
@@ -50,18 +50,22 @@ export function WaitlistForm() {
       transition={{ duration: 0.8, delay: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
       whileHover={{ y: -2 }}
     >
-      {/* mode="sync" (the default) rather than "wait": the success message must
-          never be gated behind the outgoing form's exit animation finishing —
-          if that animation ever fails to fire (a backgrounded tab, reduced-motion
-          edge cases, etc.), "wait" would leave the confirmation stuck unseen
-          forever even though the signup succeeded. */}
-      <AnimatePresence initial={false}>
-        {submitted ? (
+      {/*
+        Plain conditional render rather than AnimatePresence: the success
+        message must never depend on an exit animation completing to appear.
+        Framer Motion's exit animations rely on requestAnimationFrame, which
+        browsers can throttle or pause (a backgrounded tab during submission,
+        reduced-motion edge cases, etc.) — if that happens under
+        AnimatePresence, the swap can hang indefinitely with the old content
+        stuck on screen even though the signup already succeeded. A plain
+        ternary swaps instantly and correctly no matter what; the incoming
+        content still gets a fade-in via its own initial/animate.
+      */}
+      {submitted ? (
           <motion.div
             key="success"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="px-1.5 py-[18px] pb-3 text-center"
           >
@@ -79,7 +83,6 @@ export function WaitlistForm() {
             key="form"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
             <div className="text-center">
@@ -168,7 +171,6 @@ export function WaitlistForm() {
             <p className="mt-1.5 text-center text-[12.5px] text-muted">No payment required today.</p>
           </motion.div>
         )}
-      </AnimatePresence>
     </motion.div>
   );
 }
