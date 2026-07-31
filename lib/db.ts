@@ -15,6 +15,8 @@ function sql() {
   return neon(connectionString());
 }
 
+type Sql = ReturnType<typeof sql>;
+
 let schemaReady: Promise<void> | null = null;
 
 function ensureSchema(): Promise<void> {
@@ -67,41 +69,64 @@ export async function findLeadByEmail(email: string): Promise<Lead | null> {
 const MAX_CODE_ATTEMPTS = 5;
 
 /**
- * Creates a lead with a freshly generated, unique discount code. Retries on a
- * (very unlikely) code collision, and falls back to returning the existing
- * row if a concurrent request already inserted the same email first.
+ * Creates a lead. If `discountCode` is provided (e.g. a code HubSpot already
+ * assigned this contact), it's used as-is so the local record never drifts
+ * from HubSpot's — otherwise a fresh, unique code is generated, retrying on
+ * a (very unlikely) collision. Either way, falls back to returning the
+ * existing row if a concurrent request already inserted the same email.
  */
 export async function createLead(input: {
   fullName: string;
   email: string;
   phone: string | null;
+  discountCode?: string;
 }): Promise<Lead> {
   await ensureSchema();
   const db = sql();
 
+  if (input.discountCode) {
+    return insertLead(db, input.fullName, input.email, input.phone, input.discountCode);
+  }
+
   for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
-    const discountCode = generateDiscountCode();
     try {
-      const rows = await db`
-        INSERT INTO waitlist_leads (full_name, email, phone, discount_code)
-        VALUES (${input.fullName}, ${input.email}, ${input.phone}, ${discountCode})
-        RETURNING *
-      `;
-      return rowToLead(rows[0]);
+      return await insertLead(db, input.fullName, input.email, input.phone, generateDiscountCode());
     } catch (err) {
-      const code = (err as { code?: string }).code;
-      const constraint = (err as { constraint?: string }).constraint;
-      if (code === "23505" && constraint === "waitlist_leads_discount_code_key") {
+      if (isUniqueViolation(err, "waitlist_leads_discount_code_key")) {
         continue; // collision on the code itself — try again with a new one
-      }
-      if (code === "23505") {
-        // Someone else inserted this email concurrently — treat as idempotent.
-        const existing = await findLeadByEmail(input.email);
-        if (existing) return existing;
       }
       throw err;
     }
   }
 
   throw new Error("Could not generate a unique discount code after several attempts.");
+}
+
+async function insertLead(
+  db: Sql,
+  fullName: string,
+  email: string,
+  phone: string | null,
+  discountCode: string
+): Promise<Lead> {
+  try {
+    const rows = await db`
+      INSERT INTO waitlist_leads (full_name, email, phone, discount_code)
+      VALUES (${fullName}, ${email}, ${phone}, ${discountCode})
+      RETURNING *
+    `;
+    return rowToLead(rows[0]);
+  } catch (err) {
+    if (isUniqueViolation(err, "waitlist_leads_email_key")) {
+      // Someone else inserted this email concurrently — treat as idempotent.
+      const existing = await findLeadByEmail(email);
+      if (existing) return existing;
+    }
+    throw err;
+  }
+}
+
+function isUniqueViolation(err: unknown, constraint: string): boolean {
+  const e = err as { code?: string; constraint?: string };
+  return e.code === "23505" && e.constraint === constraint;
 }

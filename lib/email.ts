@@ -1,5 +1,6 @@
 import { render } from "@react-email/render";
 import type { ReactElement } from "react";
+import { DiscountCodeEmail } from "@/emails/templates/DiscountCodeEmail";
 
 function resendApiKey() {
   return process.env.RESEND_API_KEY;
@@ -47,4 +48,19 @@ export async function sendEmail({ to, subject, react }: SendEmailOptions): Promi
     return false;
   }
   return true;
+}
+
+export type SendCouponEmailInput = {
+  to: string;
+  fullName: string;
+  couponCode: string;
+};
+
+/** Sends the waitlist discount-code email using the shared template. */
+export function sendCouponEmail(input: SendCouponEmailInput): Promise<boolean> {
+  return sendEmail({
+    to: input.to,
+    subject: "Your 20% founding member offer is reserved",
+    react: DiscountCodeEmail({ fullName: input.fullName, discountCode: input.couponCode }),
+  });
 }

@@ -12,3 +12,6 @@ export function generateDiscountCode(prefix = "DD"): string {
   }
   return `${prefix}-${code}`;
 }
+
+// Alias matching the naming used by the HubSpot coupon-sync flow (lib/hubspot.ts).
+export { generateDiscountCode as generateCoupon };

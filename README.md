@@ -37,8 +37,12 @@ Create `.env.local` (never committed) with:
 # copy the connection string it gives you (or run `vercel env pull`).
 DATABASE_URL=
 
-# HubSpot — Settings → Integrations → Private Apps → Create a private app,
-# with the `crm.objects.contacts.write` and `crm.objects.contacts.read` scopes.
+# HubSpot — Settings → Integrations → Private Apps → Create a private app
+# (or edit your existing one), with these scopes:
+#   - crm.objects.contacts.write / crm.objects.contacts.read
+#   - crm.schemas.contacts.write / crm.schemas.contacts.read
+#     (needed to create the custom coupon_* properties on first run — see
+#     "How the coupon system works" below)
 HUBSPOT_ACCESS_TOKEN=
 
 # Resend — resend.com/api-keys. Also verify your sending domain under
@@ -51,12 +55,13 @@ NOTIFY_FROM="Detox Daily <hello@yourdomain.com>"
 NEXT_PUBLIC_SITE_URL=https://your-deployed-domain.com
 ```
 
-Without `DATABASE_URL` set, the waitlist API fails loudly (by design — the
-discount code's uniqueness depends on the database, so there's no safe local
-fallback for it). Without `HUBSPOT_ACCESS_TOKEN` or `RESEND_API_KEY`, those
-two steps degrade gracefully instead: HubSpot sync is skipped with a console
-warning, and the email is logged to the console instead of sent — so you can
-develop the form flow locally before every integration is configured.
+Without `DATABASE_URL` set, the waitlist API fails loudly if HubSpot is also
+unconfigured or unreachable (by design — a coupon's uniqueness has to be
+guaranteed by *something*, and that's the database's job when HubSpot isn't
+available). Without `HUBSPOT_ACCESS_TOKEN`, HubSpot sync is skipped entirely
+and coupons are generated/tracked in the database alone. Without
+`RESEND_API_KEY`, the email is logged to the console instead of sent — so you
+can develop the form flow locally before every integration is configured.
 
 ## Project structure
 
@@ -66,21 +71,49 @@ develop the form flow locally before every integration is configured.
 - `components/waitlist/` — all page sections (logo, headline, form, collage, offer circle, background)
 - `lib/parallax.tsx` — cursor parallax + continuous float/drift/leaf loop primitives
 - `lib/useFitToScreen.ts` — scales the content down (never up) so the page never scrolls, matching the design's single-viewport requirement
-- `lib/db.ts` — lead storage + unique discount code generation (`waitlist_leads` table, created automatically on first request)
+- `lib/db.ts` — local lead storage (`waitlist_leads` table, created automatically on first
+  request) — the fallback/mirror described below
 - `lib/discountCode.ts` — generates a 6-character unique code, e.g. `DD-7K4XPB`
-- `lib/hubspot.ts` — upserts the contact by email
-- `lib/email.ts`, `emails/templates/DiscountCodeEmail.tsx` — sends the code via Resend
+  (exported as both `generateDiscountCode` and `generateCoupon`)
+- `lib/hubspot.ts` — HubSpot contact sync, the custom coupon property definitions,
+  and the property-creation/coupon-lookup/coupon-write functions
+- `lib/email.ts`, `emails/templates/DiscountCodeEmail.tsx` — sends the coupon email via Resend
 
-## How the discount code works
+## How the coupon system works
 
-- On first submission, a unique code is generated and stored with the lead,
-  with a `redeemed` flag defaulting to `false`.
-- Resubmitting the same email reuses their existing code rather than
-  generating a new one — so refreshing/resubmitting can't mint duplicates,
-  and the code stays single-use per person.
-- **Redeeming it is not yet wired up** — there's no checkout/ordering system
-  yet to check the `redeemed` flag against. When you build one, mark it via a
-  small update to `waitlist_leads.redeemed` after the code is applied.
+**HubSpot is the source of truth for coupons when it's configured.** On each
+submission (`resolveCoupon` in `app/api/waitlist/route.ts`):
+
+1. `ensureHubSpotProperties()` checks the portal for 7 custom contact properties
+   and creates whichever are missing (cached after the first check per server
+   lifetime, so this isn't a real API call on every request):
+   - `coupon_code` (text), `coupon_status` (dropdown: Unused/Redeemed),
+     `discount_percentage` (number), `coupon_sent` (boolean),
+     `coupon_sent_date` / `waitlist_join_date` / `redemption_date` (date)
+2. `findExistingCoupon(email)` looks the contact up in HubSpot by email. If they
+   already have a `coupon_code`, that code is reused — **a coupon is never
+   regenerated or overwritten** for a contact that already has one.
+3. Otherwise a new code is generated (`generateCoupon()`) and written to HubSpot
+   via `updateCouponProperties()`: `coupon_status = Unused`, `discount_percentage = 20`,
+   `coupon_sent = true`, and both date fields set to today.
+4. `createOrUpdateContact()` upserts the contact's name/email/phone (unrelated to
+   the coupon fields — always safe to run, doesn't touch existing coupon data).
+5. The same coupon is mirrored into the local Postgres `waitlist_leads` table
+   (best-effort — a mirroring failure doesn't fail the signup), so local tooling
+   and dev environments without HubSpot configured stay consistent.
+6. `sendCouponEmail()` sends the code via Resend using the coupon that was
+   resolved above — from HubSpot when available, or from the database otherwise.
+
+**If a HubSpot call fails** (bad token, missing scope, portal down, etc.), the
+error is logged server-side — using only HubSpot's own error response, never the
+access token — and the request transparently falls back to the database-only
+flow from before, so a CRM outage never blocks a visitor from getting their
+code. If HubSpot isn't configured at all, this fallback is the only path used,
+and behaves exactly as it did before this feature existed.
+
+**Redemption isn't wired up yet** — there's no checkout/ordering system yet to
+flip `coupon_status` to `Redeemed` (HubSpot) / `redeemed` (database) or set
+`redemption_date`. When you build one, update both after the code is applied.
 
 ## Before going live
 
