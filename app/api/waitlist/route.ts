@@ -139,11 +139,27 @@ async function resolveCouponViaHubSpot(input: SignupInput): Promise<{ couponCode
   // Only a genuinely new email needs the phone check — resubmitting the same
   // email (with the same phone as before) is the normal "resend my coupon"
   // path and must keep working even though the phone also "matches".
+  //
+  // Checks both HubSpot and the local DB mirror: HubSpot's contact Search
+  // API is only *eventually* consistent (a just-created contact can take a
+  // few seconds to become searchable), so two signups with the same phone
+  // submitted in rapid succession could both pass a HubSpot-only check. The
+  // local DB write in mirrorLeadLocally() below happens synchronously within
+  // the same request, so checking it too closes that race window.
   if (!existing && input.phone) {
-    const phoneDup = await findContactByPhone(input.phone);
-    if (phoneDup) {
+    const [hubspotDup, dbDup] = await Promise.all([
+      findContactByPhone(input.phone),
+      findLeadByPhone(input.phone).catch((err) => {
+        // A DB hiccup here shouldn't block signups on its own — HubSpot's
+        // own check (above) is still authoritative when it catches it.
+        console.error("[db] phone duplicate check failed, relying on HubSpot's check:", err instanceof Error ? err.message : err);
+        return null;
+      }),
+    ]);
+    if (hubspotDup || dbDup) {
       console.warn(
-        `[waitlist] rejected signup: phone ${input.phone} already belongs to HubSpot contact ${phoneDup.id}`
+        `[waitlist] rejected signup: phone ${input.phone} already registered ` +
+          `(hubspot contact: ${hubspotDup?.id ?? "n/a"}, local lead: ${dbDup?.id ?? "n/a"})`
       );
       throw new DuplicatePhoneError(input.phone);
     }
