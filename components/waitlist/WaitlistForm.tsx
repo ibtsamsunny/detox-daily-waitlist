@@ -31,11 +31,16 @@ export function WaitlistForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName, email, phone }),
       });
-      if (!res.ok) throw new Error("Request failed");
+      if (!res.ok) {
+        // Show the API's actual reason (e.g. "This phone number is already
+        // registered.") rather than a generic message, when it sends one.
+        const body: { error?: string } | null = await res.json().catch(() => null);
+        throw new Error(body?.error || "Something went wrong. Please try again.");
+      }
       setStatus("success");
-    } catch {
+    } catch (err) {
       setStatus("error");
-      setError("Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     }
   }
 

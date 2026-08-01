@@ -322,6 +322,36 @@ export async function createOrUpdateContact(input: ContactInput): Promise<string
   return contactId;
 }
 
+/**
+ * Looks up any contact already using this phone number, regardless of email
+ * — used to block a second signup that reuses someone else's phone number.
+ * Exact string match only (no formatting normalization yet — "0300..." and
+ * "+92 300..." are treated as different numbers).
+ */
+export async function findContactByPhone(phone: string): Promise<{ id: string } | null> {
+  const path = `/crm/v3/objects/${CONTACTS_OBJECT}/search`;
+  const { status, correlationId, bodyText, data } = await hubspotRequest<{
+    results: { id: string }[];
+  }>(path, {
+    method: "POST",
+    body: JSON.stringify({
+      filterGroups: [{ filters: [{ propertyName: "phone", operator: "EQ", value: phone }] }],
+      properties: ["email"],
+      limit: 1,
+    }),
+  });
+
+  if (status < 200 || status >= 300) {
+    throw new HubSpotError(
+      `HubSpot POST ${path} failed (${status}, correlation ${correlationId ?? "n/a"}): ${bodyText.slice(0, 500)}`,
+      status,
+      correlationId
+    );
+  }
+
+  return data?.results?.[0] ? { id: data.results[0].id } : null;
+}
+
 export type ExistingCoupon = {
   couponCode: string;
   status: string | null;

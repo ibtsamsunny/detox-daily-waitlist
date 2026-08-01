@@ -66,6 +66,18 @@ export async function findLeadByEmail(email: string): Promise<Lead | null> {
   return rows[0] ? rowToLead(rows[0]) : null;
 }
 
+/**
+ * Looks up any lead already using this phone number, regardless of email —
+ * used to block a second signup that reuses someone else's phone number.
+ * Exact string match only (no formatting normalization yet).
+ */
+export async function findLeadByPhone(phone: string): Promise<Lead | null> {
+  await ensureSchema();
+  const db = sql();
+  const rows = await db`SELECT * FROM waitlist_leads WHERE phone = ${phone} LIMIT 1`;
+  return rows[0] ? rowToLead(rows[0]) : null;
+}
+
 const MAX_CODE_ATTEMPTS = 5;
 
 /**

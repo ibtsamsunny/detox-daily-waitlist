@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { createLead, findLeadByEmail } from "@/lib/db";
+import { createLead, findLeadByEmail, findLeadByPhone } from "@/lib/db";
 import {
   ensureHubSpotProperties,
   findExistingCoupon,
+  findContactByPhone,
   createOrUpdateContact,
   updateCouponProperties,
   verifyCouponProperties,
@@ -25,6 +26,19 @@ type SignupInput = {
   email: string;
   phone: string;
 };
+
+/**
+ * Thrown when the submitted phone number already belongs to a *different*
+ * signup. Deliberately not caught by resolveCoupon()'s fallback logic — a
+ * duplicate is a validation failure, not something to paper over with a
+ * local-DB retry.
+ */
+class DuplicatePhoneError extends Error {
+  constructor(public readonly phone: string) {
+    super(`Phone number ${phone} is already registered to another signup.`);
+    this.name = "DuplicatePhoneError";
+  }
+}
 
 export async function POST(request: Request) {
   let body: WaitlistPayload;
@@ -49,6 +63,9 @@ export async function POST(request: Request) {
   try {
     ({ couponCode } = await resolveCoupon({ fullName, email, phone }));
   } catch (err) {
+    if (err instanceof DuplicatePhoneError) {
+      return NextResponse.json({ error: "This phone number is already registered." }, { status: 409 });
+    }
     if (err instanceof CouponSyncPartialFailureError) {
       // The HubSpot contact was created/updated, but writing its coupon
       // properties failed — that's a real inconsistency (a contact with
@@ -86,17 +103,20 @@ export async function POST(request: Request) {
  * already exists for this email and what it is. Falls back to the local
  * database when HubSpot isn't configured at all, or if a HubSpot call fails
  * *before* any contact was written (nothing to be inconsistent about yet) —
- * so a CRM outage never blocks a visitor from getting their code. A failure
- * *after* the contact was written is a different story: see
- * CouponSyncPartialFailureError, which is deliberately NOT caught here and
- * propagates up to the POST handler as a real error.
+ * so a CRM outage never blocks a visitor from getting their code.
+ *
+ * Two failures are deliberately NOT caught here and propagate straight to
+ * the POST handler as real errors instead of falling back silently:
+ * DuplicatePhoneError (a validation failure, not an outage) and
+ * CouponSyncPartialFailureError (the contact already exists in HubSpot with
+ * blank coupon fields — a fallback would hide that inconsistency).
  */
 async function resolveCoupon(input: SignupInput): Promise<{ couponCode: string }> {
   if (isHubSpotConfigured()) {
     try {
       return await resolveCouponViaHubSpot(input);
     } catch (err) {
-      if (err instanceof CouponSyncPartialFailureError) {
+      if (err instanceof DuplicatePhoneError || err instanceof CouponSyncPartialFailureError) {
         throw err;
       }
       // Logged with no secrets (HubSpotError's message never contains the
@@ -115,6 +135,20 @@ async function resolveCouponViaHubSpot(input: SignupInput): Promise<{ couponCode
   await ensureHubSpotProperties();
 
   const existing = await findExistingCoupon(input.email);
+
+  // Only a genuinely new email needs the phone check — resubmitting the same
+  // email (with the same phone as before) is the normal "resend my coupon"
+  // path and must keep working even though the phone also "matches".
+  if (!existing && input.phone) {
+    const phoneDup = await findContactByPhone(input.phone);
+    if (phoneDup) {
+      console.warn(
+        `[waitlist] rejected signup: phone ${input.phone} already belongs to HubSpot contact ${phoneDup.id}`
+      );
+      throw new DuplicatePhoneError(input.phone);
+    }
+  }
+
   const couponCode = existing?.couponCode ?? generateCoupon();
 
   const contactId = await createOrUpdateContact({
@@ -151,10 +185,21 @@ async function resolveCouponViaHubSpot(input: SignupInput): Promise<{ couponCode
 async function resolveCouponViaDatabase(input: SignupInput): Promise<{ couponCode: string }> {
   // Resubmitting the same email reuses their existing code instead of
   // minting a new one, so the discount stays single-use per person.
-  const lead =
-    (await findLeadByEmail(input.email)) ??
-    (await createLead({ fullName: input.fullName, email: input.email, phone: input.phone || null }));
-  return { couponCode: lead.discountCode };
+  const existing = await findLeadByEmail(input.email);
+  if (existing) {
+    return { couponCode: existing.discountCode };
+  }
+
+  if (input.phone) {
+    const phoneDup = await findLeadByPhone(input.phone);
+    if (phoneDup) {
+      console.warn(`[waitlist] rejected signup: phone ${input.phone} already belongs to lead ${phoneDup.id}`);
+      throw new DuplicatePhoneError(input.phone);
+    }
+  }
+
+  const created = await createLead({ fullName: input.fullName, email: input.email, phone: input.phone || null });
+  return { couponCode: created.discountCode };
 }
 
 async function mirrorLeadLocally(input: SignupInput & { couponCode: string }): Promise<void> {
